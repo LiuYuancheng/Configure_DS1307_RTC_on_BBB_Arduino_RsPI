@@ -1,6 +1,10 @@
-# BeagleBone-Black--RTC-Config
+# Set RTC Unit for OT/IoT Device
 
-**Program Design Purpose**: We want to add a Real-Time Clock unit to BBB it so the programs we run on the BBB will have real time info even the BBB is not connected to the internet. 
+### Configure DS1307 RTC on BeagleBone-Black Arduino or Raspberry PI
+
+
+
+**Program Design Purpose**: Some times we need to set the real time clock (RTC) module for some OT module such as a ship NEMA 0183 data recorder which record the ship engineer, rudder data. or set RTU for some IoT device which operating offline which can not connect to network time server. We will show how to integrate a simple DS1307 RTC unit in some simple micro controller used in OT and IoT  such as BeagleBone-Black, Arduino or Raspberry PI.
 
 [TOC]
 
