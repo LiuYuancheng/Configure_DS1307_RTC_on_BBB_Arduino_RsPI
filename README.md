@@ -9,7 +9,7 @@
 ```
 # Created:     2024/08/11
 # Version:     v_0.1.2
-# Copyright:   Copyright (c) 2024 LiuYuancheng
+# Copyright:   N.A
 # License:     MIT License
 ```
 
@@ -192,6 +192,84 @@ while True:
         time_data[2], time_data[1], time_data[0], time_data[3], time_data[4], time_data[5]))
     
     time.sleep(1)
+```
+
+For detailed code and program please refer to `src/rtcBBB` . 
+
+
+
+------
+
+### Setup and Usage DS1307 RTC on Arduino
+
+##### Wire Connection
+
+1. Connect VCC on the RTC I2C DS1307 to the Pin 17 (+5V )  on Arduino Uno/Nano. 
+2. Connect GND on the breakout board to the Pin 19 (GND) pin on the Arduino Uno/Nano. 
+3. Connect SDA on the breakout board to the Pin25 (A4/D18) pin on the Arduino Uno/Nano. 
+4. Connect SCL on the breakout board to the Pin24 (A5/D19) on the Arduino Uno/Nano. 
+
+![](doc/img/rm_06.png)
+
+##### Library or driver configuration
+
+To read time data from a DS1307 RTC module using I2C with an Arduino, you will need to use the `Wire.h` library to communicate with the module. 
+
+Then from the lib Arduino IDE search RTClib to install the `RTClib.h` which can easily interact with DS1307 and other RTC modules. as shown below:
+
+![](doc/img/rm_07.png)
+
+##### C++ Program to get the RTC data
+
+After finished the config, you can use the below example to read the time data from the RTC
+
+```c++
+#include <Wire.h>
+#include <RTClib.h>  // You need to install the RTClib library in the Arduino IDE
+
+RTC_DS1307 rtc;
+
+void setup() {
+  // Start the serial communication
+  Serial.begin(9600);
+  // Start the I2C communication
+  Wire.begin();
+  // Check if the RTC is connected properly
+  if (!rtc.begin()) {
+    Serial.println("Couldn't find RTC");
+    while (1);
+  }
+
+  // Check if the RTC is running
+  if (!rtc.isrunning()) {
+    Serial.println("RTC is NOT running!");
+    // Uncomment the following line to set the RTC time to the time the sketch was compiled
+    // rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+  }
+}
+
+void loop() {
+  // Get the current time from the RTC
+  DateTime now = rtc.now();
+
+  // Print the current date and time to the serial monitor
+  Serial.print(now.year(), DEC);
+  Serial.print('/');
+  Serial.print(now.month(), DEC);
+  Serial.print('/');
+  Serial.print(now.day(), DEC);
+  Serial.print(" ");
+  Serial.print(now.hour(), DEC);
+  Serial.print(':');
+  Serial.print(now.minute(), DEC);
+  Serial.print(':');
+  Serial.print(now.second(), DEC);
+  Serial.println();
+
+  // Wait 1 second before repeating
+  delay(1000);
+}
+
 ```
 
 
