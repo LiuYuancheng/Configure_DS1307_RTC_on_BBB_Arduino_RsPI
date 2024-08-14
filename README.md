@@ -57,7 +57,22 @@ I2C is **a two-wire serial communication protocol using a serial data line (SDA)
 
 - Raspberry PI: https://www.raspberrypi.com/
 
-  
+
+
+
+------
+
+### Setup DS1307 RTC on 3.3 V OT device
+
+Based on the DS1307 RTC document page 3/14, the MAX SDA, SCL = 5.0V, if your OT micro controller's signal voltage control is 3.3V, we can reduce the signal voltage by remove 2 pull-up resistors. 
+
+As shown in the below circuit diagram, the SDA and SDL are connect to the VCC with the two 3.3K pull up register R2 and R3. 
+
+![](doc/img/rm_03.png)
+
+If we unsolder the 2 register, the output will be the DS1307 chips' out put voltage which is Max 3.5V, then for the OT device which use 3.3V voltage system  
+
+
 
 ------
 
@@ -272,155 +287,84 @@ void loop() {
 
 ```
 
-
-
-
-
-
-
-The BeagleBone-Black doesn't have a embedded Real-Time Clock module, so if we powered off it and reboot it, if it is not connected to the internet, its time will be reset. We want to add a RTC unit to it so the program we run on the BBB will have RTC. 
-
-We follow this tutorial link to do the RTC config: 
-
-https://learn.adafruit.com/adding-a-real-time-clock-to-beaglebone-black
+For detailed code and program please refer to `src/rtcArduino` . 
 
 
 
 ------
 
-### Program Setup
+### Setup and Usage DS1307 RTC on Raspberry PI
 
-###### Development Environment : BBB-Debian-V3, Shell
+##### Wire Connection
 
-###### Additional Lib/Software Need: N.A
+1. Connect VCC on the RTC I2C DS1307 to the Pin 3 or Pin4 (+5V )  on Raspberry PI. 
+2. Connect GND on the breakout board to the Pin 6 (GND) pin on Raspberry PI. 
+3. Connect SDA on the breakout board to the Pin3 (GPIO2) pin on the Raspberry PI. 
+4. Connect SCL on the breakout board to the Pin5 ((GPIO3) on the Raspberry PI. 
 
-###### Hardware Needed
+![](doc/img/rm_08.png)
 
-1. **BeagleBone-Black**:  https://beagleboard.org/black
+Same as setting on BeagleBone-Black, ensure that the DS1307 RTC is working and connected correctly by running `i2cdetect -y 1` in the terminal. You should see `0x68` listed, which is the address of the DS1307.
 
-2. **Tiny RTC I2C DS1307**: https://www.elecrow.com/wiki/index.php?title=Tiny_RTC
+##### Library or driver configuration
 
-   We use RTC I2C DS1307 Module Including Coin Cell Battery to provide time to BBB. This is the description of RTC I2C DS1307 Module:
+To read time data from a DS1307 RTC module using I2C on a Raspberry Pi, you can use the `smbus` or `smbus2` library in Python. Below is an example code to read the time from a DS1307 RTC module. We need to enable the GPIO I2C Interface first. 
 
-   
+Run `sudo raspi-config`. 
 
-   RTC I2C DS1307 Module Features: 
+![](doc/img/rm_09.png)
 
-   ```
-   - The DS1307 I2C Real Time Clock chips (RTC) 
-   - I2C EEPROM memory 24C32 32K 
-   - To adopt LIR2032 rechargeable lithium battery, and with the charging circuit 
-   - Solve the problem DS1307 with battery backup cannot read and write.
-   - Fully charged, can provide the DS1307 timing. 
-   - Compact design, 27mm * 28mm * 8.4mm 
-   - Leads to the DS1307 clock pin for the MCU to provide the clock signal.
-   ```
+Then navigate to `Interfacing Options` > `I2C` and enable it.
 
-3. -
+![](doc/img/rm_10.png)
 
-###### Program Files List 
+Install necessary packages: `sudo apt-get install -y python-smbus i2c-tools`. For newer newer Raspberry Pi models Opens I2C bus 1 with `smbus.SMBus(1)`
 
-version: v0.1
-
-| Program File           | Execution Env | Description                                                  |
-| ---------------------- | ------------- | ------------------------------------------------------------ |
-| src/clock_init.sh      | shell         | Time data fetch program to get the real time from RTC        |
-| src/rtc-ds1307.service | shell         | Service program to auto run the time fetch program when the BBB rebooted. |
-
-
-
-------
-
-### Program Usage
-
-Follow below steps to set the program working for BBB: 
-
-##### Step 1: Changed RTC I2C DS1307 Module for BBB
-
-As the RTC I2C DS1307 Module was designed for the Arduino instead of BBB, when building the kit, we need to remove the pull up resistors (R2 and R3 which in the red box shown in the circuit diagram as shown below). 
-
-![](doc/img/readme2.png)
-
-
-
-We force the RTC to communicate at 3.3V instead of 5V, which is better for the BBB. The resistor needs to be unsoldered is shown below: 
-
-![](doc/img/readme3.png)
-
-
-
-##### Step 2: Connect the RTC to BBB for verification
-
-After removed the pull up resistor of the RTC chip, the next step is connect to BBB for detection. The wiring work is simple: 
-
-1. Connect **VCC** on the RTC I2C DS1307 to the **P9_5** (VCC 5V) or **P9_7** (SYS 5V) pin on the BBB. NOTE: The **P9_5** VCC 5V pin will only be powered if a 5V adapter is plugged in to the barrel jack. If powering over USB use the **P9_7** (SYS 5V) pin instead! 
-2. Connect GND on the breakout board to the **P9_1** (GND) pin on the BBB. 
-3. Connect SDA on the breakout board to the **P9_20** pin of the BBB 
-4. Connect SCL on the breakout board to the **P9_19** pin of the BBB
-
-The wire connection is shown below: 
-
-<img src="doc/img/readme4.png" style="zoom: 67%;" />
-
-Verify the wiring by running `i2cdetect -y -r 1` at the command line: If the ID 68 show up, the RTC is ready. As shown below: 
-
-![](doc/img/readme5.png)
-
-##### Step 3: Synchronize RTC Time with
-
-After finished wired the RTC chip module wired up and verified that we can see the module with i2cdetect, we can set up the module. Now, execute the following to add the RTC chip to new device list:
+##### Python Program to get the RTC data
 
 ```
-echo ds1307 0x68 > /sys/class/i2c-adapter/i2c-1/new_device
+import smbus
+import time
+
+# Define the I2C bus and address of the DS1307 RTC
+bus = smbus.SMBus(1)  # Use '1' for I2C on newer Raspberry Pi models
+DS1307_ADDRESS = 0x68
+
+# Function to convert BCD to decimal
+def bcd_to_dec(bcd):
+    return (bcd // 16 * 10) + (bcd % 16)
+
+# Function to read the time from the DS1307 RTC
+def read_time():
+    # Read the time registers from the DS1307
+    second = bus.read_byte_data(DS1307_ADDRESS, 0x00)
+    minute = bus.read_byte_data(DS1307_ADDRESS, 0x01)
+    hour = bus.read_byte_data(DS1307_ADDRESS, 0x02)
+    day = bus.read_byte_data(DS1307_ADDRESS, 0x04)
+    month = bus.read_byte_data(DS1307_ADDRESS, 0x05)
+    year = bus.read_byte_data(DS1307_ADDRESS, 0x06)
+
+    # Convert the BCD values to decimal
+    second = bcd_to_dec(second)
+    minute = bcd_to_dec(minute)
+    hour = bcd_to_dec(hour)
+    day = bcd_to_dec(day)
+    month = bcd_to_dec(month)
+    year = bcd_to_dec(year) + 2000  # The DS1307 only gives the last two digits of the year
+
+    return (year, month, day, hour, minute, second)
+
+# Main loop to print the time every second
+while True:
+    time_data = read_time()
+    print("Date: {:02d}/{:02d}/{:04d} Time: {:02d}:{:02d}:{:02d}".format(
+        time_data[2], time_data[1], time_data[0], time_data[3], time_data[4], time_data[5]))
+    
+    time.sleep(1)
+
 ```
 
-After hooked the address to the BBB new device list, we can run the program to check the current time of the DS1307 module: 
-
-```
-hwclock -r -f /dev/rtc1
-```
-
-If this is the first time the module has been used it will report back Jan 1 2000, so we will need to set the time. The quickest way to set the time on the BeagleBone Black is to execute the following (The BBB need to connect to the internet):
-
-```
-/usr/bin/ntpdate -b -s -u pool.ntp.org
-```
-
-Now that the system time is set correctly, we can execute the following to write the system time to the DS1307:
-
-```
-hwclock -w -f /dev/rtc1
-```
-
-We can also verify whether it was set correctly by executing the following command to read the date and time from the DS1307 RTC:
-
-```
-hwclock -r -f /dev/rtc1
-```
-
-
-
-
-
-
-
-------
-
-### Problem and Solution
-
-###### 
-
-**OS Platform** : na
-
-**Error Message**: na
-
-**Type**: na
-
-**Solution**: na
-
-**Related Reference**:  na
-
-
+For detailed code and program please refer to `src/rtcRspI` . 
 
 ------
 
@@ -432,5 +376,4 @@ hwclock -r -f /dev/rtc1
 
 ------
 
-> Last edit by LiuYuancheng(liu_yuan_cheng@hotmail.com) at 02/12/2020
-
+> Last edit by LiuYuancheng(liu_yuan_cheng@hotmail.com) at 14/08/2024
