@@ -81,7 +81,7 @@ By unsoldering these two resistors, the output voltage will be directly from the
 
 This section explains how to connect and configure the DS1307 RTC with the BeagleBone Black.
 
-#### Wire Connection
+#### RTU and Controller Wire Connection
 
 1. **VCC Connection**: Connect the **VCC** pin on the DS1307 RTC to the **P9_5** (VCC 5V) or **P9_7** (SYS 5V) pin on the BeagleBone Black. **Note**: The **P9_5** VCC 5V pin will only be powered if a 5V adapter is plugged into the barrel jack. If powering the BeagleBone Black via USB, use the **P9_7** (SYS 5V) pin instead.
 2. **GND Connection**: Connect the **GND** pin on the DS1307 RTC to the **P9_1** (GND) pin on the BeagleBone Black.
@@ -94,7 +94,7 @@ The connection detail is shown below:
 
 To check if the DS1307 is properly connected and recognized by the BeagleBone Black, run the command `i2cdetect -y -r 1`. The address `0x68` should appear, indicating that the DS1307 module is correctly connected.
 
-#### **Library or driver configuration**
+#### Library and Driver Configuration
 
 Follow below steps to setup the DS1307 module
 
@@ -211,28 +211,32 @@ For detailed code and program please refer to the programs in folder  `src/rtcBB
 
 ------
 
-### Setup and Usage DS1307 RTC on Arduino
+### Setting Up and Using the DS1307 RTC on Arduino
 
-##### Wire Connection
+This section explains how to connect and configure the DS1307 RTC with the Arduino Uno/Nano.
 
-1. Connect VCC on the RTC I2C DS1307 to the Pin 17 (+5V )  on Arduino Uno/Nano. 
-2. Connect GND on the breakout board to the Pin 19 (GND) pin on the Arduino Uno/Nano. 
-3. Connect SDA on the breakout board to the Pin25 (A4/D18) pin on the Arduino Uno/Nano. 
-4. Connect SCL on the breakout board to the Pin24 (A5/D19) on the Arduino Uno/Nano. 
+#### RTU and Controller Wire Connection
+
+1. Connect the **VCC** pin on the DS1307 RTC to the **Pin 17 (+5V)** on the Arduino Uno/Nano.
+2. Connect the **GND** pin on the RTC module to the **Pin 19 (GND)** on the Arduino Uno/Nano.
+3. Connect the **SDA** pin on the RTC module to **Pin 25 (A4/D18)** on the Arduino Uno/Nano.
+4. Connect the **SCL** pin on the RTC module to **Pin 24 (A5/D19)** on the Arduino Uno/Nano.
+
+The connection detail is shown below:
 
 ![](doc/img/rm_06.png)
 
-##### Library or driver configuration
+#### Library or Driver Configuration
 
-To read time data from a DS1307 RTC module using I2C with an Arduino, you will need to use the `Wire.h` library to communicate with the module. 
-
-Then from the lib Arduino IDE search RTClib to install the `RTClib.h` which can easily interact with DS1307 and other RTC modules. as shown below:
+To interface with the DS1307 RTC module using I2C on an Arduino, you need to include the `Wire.h` library, which facilitates I2C communication. Additionally, install the `RTClib` library through the Arduino IDE, which simplifies interaction with the DS1307 and other RTC modules.(As shown below)
 
 ![](doc/img/rm_07.png)
 
-##### C++ Program to get the RTC data
+For the RTC lib please refer to this link: https://www.arduino.cc/reference/en/libraries/rtclib/ , or the project repo: https://github.com/adafruit/RTClib
 
-After finished the config, you can use the below example to read the time data from the RTC
+#### C++ Program to Read RTC Data
+
+Once the configuration is complete, you can use the following example code to read time data from the RTC module:
 
 ```c++
 #include <Wire.h>
@@ -283,42 +287,56 @@ void loop() {
 
 ```
 
-For detailed code and program please refer to `src/rtcArduino` . 
+This code initializes the DS1307, checks if it's running, and prints the current date and time to the serial monitor every second. For detailed code and program please refer to `src/rtcArduino` . 
 
 
 
 ------
 
-### Setup and Usage DS1307 RTC on Raspberry PI
+### Setting Up and Using the DS1307 RTC on Raspberry Pi
 
-##### Wire Connection
+This section explains how to connect and configure the DS1307 RTC with the Raspberry PI b3+.
 
-1. Connect VCC on the RTC I2C DS1307 to the Pin 3 or Pin4 (+5V )  on Raspberry PI. 
-2. Connect GND on the breakout board to the Pin 6 (GND) pin on Raspberry PI. 
-3. Connect SDA on the breakout board to the Pin3 (GPIO2) pin on the Raspberry PI. 
-4. Connect SCL on the breakout board to the Pin5 ((GPIO3) on the Raspberry PI. 
+#### RTU and Controller Wire Connection
+
+1. Connect the **VCC** pin on the DS1307 RTC to **Pin 2 or Pin 4 (+5V)** on the Raspberry Pi.
+2. Connect the **GND** pin on the RTC module to **Pin 6 (GND)** on the Raspberry Pi.
+3. Connect the **SDA** pin on the RTC module to **Pin 3 (GPIO2, SDA1)** on the Raspberry Pi.
+4. Connect the **SCL** pin on the RTC module to **Pin 5 (GPIO3, SCL1)** on the Raspberry Pi.
+
+The connection detail is shown below:
 
 ![](doc/img/rm_08.png)
 
-Same as setting on BeagleBone-Black, ensure that the DS1307 RTC is working and connected correctly by running `i2cdetect -y 1` in the terminal. You should see `0x68` listed, which is the address of the DS1307.
+Same as setting on BeagleBone-Black, to verify that the DS1307 RTC is properly connected and recognized, run `i2cdetect -y 1` in the terminal. You should see the address `0x68`, indicating that the DS1307 is detected.
 
-##### Library or driver configuration
+#### Library or Driver Configuration
 
-To read time data from a DS1307 RTC module using I2C on a Raspberry Pi, you can use the `smbus` or `smbus2` library in Python. Below is an example code to read the time from a DS1307 RTC module. We need to enable the GPIO I2C Interface first. 
+To interface with the DS1307 RTC module using I2C on a Raspberry Pi, you can use the `smbus` or `smbus2` library in Python. First, enable the I2C interface on the Raspberry Pi with below cmd:
 
-Run `sudo raspi-config`. 
+```
+sudo raspi-config
+```
 
 ![](doc/img/rm_09.png)
 
-Then navigate to `Interfacing Options` > `I2C` and enable it.
+Then navigate to `Interfacing Options` > `I2C` and enable it as shown below:
 
 ![](doc/img/rm_10.png)
 
-Install necessary packages: `sudo apt-get install -y python-smbus i2c-tools`. For newer newer Raspberry Pi models Opens I2C bus 1 with `smbus.SMBus(1)`
-
-##### Python Program to get the RTC data
+Next, install the necessary packages by running:
 
 ```
+sudo apt-get install -y python-smbus i2c-tools
+```
+
+For newer Raspberry Pi models, open I2C bus 1 using `smbus.SMBus(1)` in your Python code.
+
+#### Python Program to Get the RTC Data
+
+Once the configuration is complete, you can use the following example code to read time data from the RTC module:
+
+```python
 import smbus
 import time
 
@@ -368,8 +386,18 @@ For detailed code and program please refer to `src/rtcRspI` .
 
 - https://learn.adafruit.com/adding-a-real-time-clock-to-beaglebone-black
 
+- https://www.instructables.com/DS1307-Real-Time-Clock-RTC-With-Arduino/
 
+- https://wiki.seeedstudio.com/Pi_RTC-DS1307/
+
+  
 
 ------
 
-> Last edit by LiuYuancheng(liu_yuan_cheng@hotmail.com) at 14/08/2024
+### Problem and Solution
+
+- Refer to `doc/ProblemAndSolution.md`
+
+------
+
+> Last edit by LiuYuancheng(liu_yuan_cheng@hotmail.com) at 14/08/2024, if you have any problem, please send me a message. 
