@@ -2,9 +2,9 @@
 
 ### Configure DS1307 RTC on BeagleBone-Black Arduino or Raspberry PI
 
+![](doc/img/title.png)
 
-
-**Program Design Purpose**: Real time clock (RTC) module are widely used for System Clocks, Data Logging and Alarm Systems. Some times we need to set the module for some OT device such as a ship NEMA 0183 data recorder which record the ship engineer, rudder data. or set RTU for some IoT device which operating offline which can not connect to network time server. We will show how to integrate a simple DS1307 RTC unit in some wildly used micro controller used in OT and IoT  such as BeagleBone-Black, Arduino or Raspberry PI. 
+**Program Design Purpose**: Real-Time Clock (RTC) modules are essential for maintaining accurate timekeeping in various applications, including system clocks, data logging, and alarm systems. In scenarios where devices operate offline, such as a ship's NMEA 0183 data recorder that logs engine and rudder data, or an RTU (Remote Terminal Unit) which time state change configuration or IoT devices that cannot connect to a network time server, an RTC is crucial. This guide demonstrates how to integrate a DS1307 RTC module with commonly used microcontrollers in OT (Operational Technology) and IoT (Internet of Things) environments, such as the BeagleBone-Black, Arduino, and Raspberry Pi.
 
 ```
 # Created:     2024/08/11
@@ -13,35 +13,36 @@
 # License:     MIT License
 ```
 
+**Table of Contents**
+
 [TOC]
 
 ------
 
 ### Introduction
 
-A Real-Time Clock (RTC) is a specialized computer clock that keeps track of the current time even when the main power is turned off. It is typically used in computers, embedded systems, and various electronics where accurate timekeeping is necessaries will show how to integrate a simple DS1307 RTC unit in some wildly used micro controller used in OT and IoT  such as BeagleBone-Black, Arduino or Raspberry PI. For each example, the explanation includes 3 part: 
+A Real-Time Clock (RTC) is a specialized clock that maintains accurate timekeeping even when the main power is turned off. RTCs are crucial in computers, embedded systems, and other electronics where continuous time tracking is necessary. This project will demonstrate how to integrate a DS1307 RTC module with popular microcontrollers used in Operational Technology (OT) and Internet of Things (IoT) applications, such as the BeagleBone-Black, Arduino, and Raspberry Pi. Each example will cover three key areas:
 
-- **Physical wire connection**: Show how to connect the DS1307 to the micro controller's GPIO pin and power on the data transmission. 
-
-- **Library or driver configuration**:  Show how to install or config the I2C (a two-wire serial communication) lib or driver on the micro controller or your program. 
-- **RTC time read and write**: Show how to setup the time to the DS1307 and read the time from it with your program.
+- **Physical Wiring Connection**: Instructions on connecting the DS1307 to the microcontroller's GPIO pins and powering the data transmission.
+- **Library or Driver Configuration**: Guidance on installing or configuring the I2C (a two-wire serial communication protocol) library or driver on the microcontroller or in your program.
+- **RTC Time Read and Write**: Steps to set the time on the DS1307 and read the time from it using your program.
 
 #### Background Knowledge Introduction
 
-In this section we will give a short introduction and the detail reference link about the hardware we used and the protocol for RTC data IO, if you are familiar about the DS1307 RTC, BBB, Arduino and Raspberry PI, you can skip this section. 
+This section provides an overview and reference links for the hardware and protocols used in this project. If you are already familiar with the DS1307 RTC, BeagleBone-Black, Arduino, and Raspberry Pi, you can skip this section.
 
 ##### I2C DS1307 RTC
 
-The DS1307 is a widely used RTC module that communicates via I2C and is commonly used in projects requiring basic timekeeping functionalities. RTC I2C DS1307 Module Including Coin Cell Battery is shown below:
+The DS1307 is a widely-used RTC module that communicates via I2C and is suitable for basic timekeeping applications. It includes a coin cell battery, ensuring that it keeps time even when the main power is off. RTC I2C DS1307 Module Including Coin Cell Battery is shown below:
 
 ![](doc/img/readme1.png)
 
-Key Features of RTC:
+**Key Features of the DS1307 RTC:**
 
-- **Battery Backup**: RTC modules are often equipped with a small battery that allows them to keep time even when the main system is powered off.
-- **I2C/SPI Interface**: RTCs commonly use communication protocols like I2C or SPI to interface with microcontrollers or processors.
-- **Time and Date**: They maintain time (hours, minutes, seconds) and date (day, month, year) information.
-- **Low Power Consumption**: Designed to consume minimal power, ensuring long battery life.
+- **Battery Backup**: Ensures timekeeping continues even during power loss.
+- **I2C Interface**: Allows communication with microcontrollers via the I2C protocol.
+- **Time and Date Management**: Tracks hours, minutes, seconds, day, month, and year.
+- **Low Power Consumption**: Designed to consume minimal power, extending battery life.
 
 DS1307 RTC Detailed document link: https://www.analog.com/media/en/technical-documentation/data-sheets/ds1307.pdf
 
@@ -51,89 +52,91 @@ I2C is **a two-wire serial communication protocol using a serial data line (SDA)
 
 ##### Micro Controller Introduction
 
-- BeagleBone-Black: https://docs.beagleboard.org/latest/boards/beaglebone/black/ch04.html
+- **BeagleBone-Black**: https://docs.beagleboard.org/latest/boards/beaglebone/black/ch04.html
 
-- Arduino: https://www.arduino.cc/
+- **Arduino:** https://www.arduino.cc/
 
-- Raspberry PI: https://www.raspberrypi.com/
+- **Raspberry PI**: https://www.raspberrypi.com/
 
 
 
 
 ------
 
-### Setup DS1307 RTC on 3.3 V OT device
+### Setting Up the DS1307 RTC for 3.3V OT Devices
 
-Based on the DS1307 RTC document page 3/14, the MAX SDA, SCL = 5.0V, if your OT micro controller's signal voltage control is 3.3V, we can reduce the signal voltage by remove 2 pull-up resistors. 
+According to the DS1307 RTC datasheet (page 3/14), the maximum voltage for the SDA and SCL lines is 5.0V. If your OT microcontroller operates at 3.3V signal levels, you can adapt the DS1307 module by removing the two pull-up resistors connected to the SDA and SCL lines before link it to your OT controller.
 
-As shown in the below circuit diagram, the SDA and SDL are connect to the VCC with the two 3.3K pull up register R2 and R3. 
+In the circuit diagram below, the SDA and SCL lines are connected to VCC through two 3.3kΩ pull-up resistors, R2 and R3.
 
 ![](doc/img/rm_03.png)
 
-If we unsolder the 2 register, the output will be the DS1307 chips' out put voltage which is Max 3.5V, then for the OT device which use 3.3V voltage system  
+By unsoldering these two resistors, the output voltage will be directly from the DS1307 chip, which has a maximum output of 3.5V. This adjustment ensures compatibility with OT devices that operate on a 3.3V system.
 
 
 
 ------
 
-### Setup and Usage DS1307 RTC on BeagleBone-Black
+### Setting Up and Using the DS1307 RTC on BeagleBone-Black
 
-This section will show how to connect the DS1307 RTC BeagleBone-Black. 
+This section explains how to connect and configure the DS1307 RTC with the BeagleBone Black.
 
-##### Wire Connection
+#### Wire Connection
 
-1. Connect **VCC** on the RTC I2C DS1307 to the **P9_5** (VCC 5V) or **P9_7** (SYS 5V) pin on the BBB. NOTE: The **P9_5** VCC 5V pin will only be powered if a 5V adapter is plugged in to the barrel jack. If powering over USB use the **P9_7** (SYS 5V) pin instead! 
-2. Connect GND on the breakout board to the **P9_1** (GND) pin on the BBB. 
-3. Connect SDA on the breakout board to the **P9_20** pin of the BBB 
-4. Connect SCL on the breakout board to the **P9_19** pin of the BBB
+1. **VCC Connection**: Connect the **VCC** pin on the DS1307 RTC to the **P9_5** (VCC 5V) or **P9_7** (SYS 5V) pin on the BeagleBone Black. **Note**: The **P9_5** VCC 5V pin will only be powered if a 5V adapter is plugged into the barrel jack. If powering the BeagleBone Black via USB, use the **P9_7** (SYS 5V) pin instead.
+2. **GND Connection**: Connect the **GND** pin on the DS1307 RTC to the **P9_1** (GND) pin on the BeagleBone Black.
+3. **SDA Connection**: Connect the **SDA** pin on the DS1307 RTC to the **P9_20** pin on the BeagleBone Black.
+4. **SCL Connection**: Connect the **SCL** pin on the DS1307 RTC to the **P9_19** pin on the BeagleBone Black.
+
+The connection detail is shown below:
 
 ![](doc/img/rm_05.png)
 
-heck if the DS1307 is properly connected and recognized by the BeagleBone Black by running the command `i2cdetect -y -r 1`. You should see the address `0x68`, which corresponds to the DS1307 module.
+To check if the DS1307 is properly connected and recognized by the BeagleBone Black, run the command `i2cdetect -y -r 1`. The address `0x68` should appear, indicating that the DS1307 module is correctly connected.
 
-##### Library or driver configuration
+#### **Library or driver configuration**
 
 Follow below steps to setup the DS1307 module
 
 **Step1: Synchronize RTC Time with internet** 
 
-After finished wired the RTC chip module wired up and verified that we can see the module with i2cdetect, we can set up the module. Now, execute the following to add the RTC chip to new device list:
+Once the DS1307 module is wired up and recognized, you can set up the module by adding it to the device list with below commands :
 
 ```
 echo ds1307 0x68 > /sys/class/i2c-adapter/i2c-1/new_device
 ```
 
-After hooked the address to the BBB new device list, we can run the program to check the current time of the DS1307 module: 
+After adding the DS1307 to the BeagleBone Black’s device list, check the current time on the module with cmd:
 
 ```
 hwclock -r -f /dev/rtc1
 ```
 
-If this is the first time the module has been used it will report back Jan 1 2000, so we will need to set the time. The quickest way to set the time on the BeagleBone Black is to execute the following (The BBB need to connect to the internet):
+If this is the first time the module has been used, it may display the default date of `Jan 1, 2000`. To set the time, connect the BeagleBone Black to the internet and run to synchronize the time or use time cmd to setup the time directly:
 
 ```
 /usr/bin/ntpdate -b -s -u pool.ntp.org
 ```
 
-Now that the system time is set correctly, we can execute the following to write the system time to the DS1307:
+Once the system time is set correctly, write the system time to the DS1307:
 
 ```
 hwclock -w -f /dev/rtc1
 ```
 
-We can also verify whether it was set correctly by executing the following command to read the date and time from the DS1307 RTC:
+Verify the time has been set correctly by reading the date and time from the DS1307 RTC:
 
 ```
 hwclock -r -f /dev/rtc1
 ```
 
-**Step 2: Create service that will run each time when BBB boot up (optional)** 
+**Step 2: Create a Time Correct Service to Run on Boot (Optional)**
 
 To start, create a directory and script that will be executed: `mkdir /usr/share/rtc_ds1307`
 
 Copy `clock_init.sh` and `rtc-ds1307.service` in to the folder 
 
-After copied the file, we'll need to actually enable the service so it starts each time as the system boots:
+Enable the service to start on boot:
 
 ```
 systemctl enable rtc-ds1307.service
@@ -146,11 +149,11 @@ systemctl start rtc-ds1307.service
 systemctl stop rtc-ds1307.service
 ```
 
-After reboot the BBB, the RTC I2C DS1307 Module can work normally now your program can use the system time lib.
+After rebooting the BeagleBone Black, the DS1307 RTC module should function correctly, allowing your program to utilize the system time library.
 
-**Step 3: Install the lib**
+**Step 3: Install the IC2 Library **
 
-If your don't want to use the service in step 2, for your python program which to enable I2C1 (usually used for communication), you can use cmd: 
+If your don't want to use the service in step 2, for your python program which to enable I2C1 (usually used for communication), you can use below cmd: 
 
 ```
 echo BB-I2C1 > /sys/devices/platform/bone_capemgr/slots
@@ -164,22 +167,19 @@ sudo apt-get install python3-pip
 sudo pip3 install Adafruit_BBIO smbus2
 ```
 
-##### Python Program to get the RTC data
+#### Python Program to Get the RTC Data
 
-After finished the config, you can use the below example to read the time data from the RTC
+After finished the config, you can use the below example to read the time data from the RTC:
 
 ```python
 import smbus2
 import time
-
 # Define the I2C bus and address of the DS1307 RTC
 bus = smbus2.SMBus(1)  # Use '1' for I2C1 on BeagleBone Black
 DS1307_ADDRESS = 0x68
-
 # Function to convert BCD to decimal
 def bcd_to_dec(bcd):
     return (bcd // 16 * 10) + (bcd % 16)
-
 # Function to read the time from the DS1307 RTC
 def read_time():
     # Read the time registers from the DS1307
@@ -189,7 +189,6 @@ def read_time():
     day = bus.read_byte_data(DS1307_ADDRESS, 0x04)
     month = bus.read_byte_data(DS1307_ADDRESS, 0x05)
     year = bus.read_byte_data(DS1307_ADDRESS, 0x06)
-
     # Convert the BCD values to decimal
     second = bcd_to_dec(second)
     minute = bcd_to_dec(minute)
@@ -197,19 +196,16 @@ def read_time():
     day = bcd_to_dec(day)
     month = bcd_to_dec(month)
     year = bcd_to_dec(year) + 2000  # The DS1307 only gives the last two digits of the year
-
     return (year, month, day, hour, minute, second)
-
 # Main loop to print the time every second
 while True:
     time_data = read_time()
     print("Date: {:02d}/{:02d}/{:04d} Time: {:02d}:{:02d}:{:02d}".format(
         time_data[2], time_data[1], time_data[0], time_data[3], time_data[4], time_data[5]))
-    
     time.sleep(1)
 ```
 
-For detailed code and program please refer to `src/rtcBBB` . 
+For detailed code and program please refer to the programs in folder  `src/rtcBBB` . 
 
 
 
