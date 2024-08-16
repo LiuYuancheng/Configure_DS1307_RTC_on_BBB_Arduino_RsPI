@@ -1,8 +1,8 @@
-# Set RTC Unit for OT/IoT Device
+# Set Real-Time Clock Unit for OT/IoT Device
 
 ### Configure DS1307 RTC on BeagleBone-Black Arduino or Raspberry PI
 
-![](doc/img/title.png)
+![](doc/img/title01.png)
 
 **Program Design Purpose**: Real-Time Clock (RTC) modules are essential for maintaining accurate timekeeping in various applications, including system clocks, data logging, and alarm systems. In scenarios where devices operate offline, such as a ship's NMEA 0183 data recorder that logs engine and rudder data, or an RTU (Remote Terminal Unit) which time state change configuration or IoT devices that cannot connect to a network time server, an RTC is crucial. This guide demonstrates how to integrate a DS1307 RTC module with commonly used microcontrollers in OT (Operational Technology) and IoT (Internet of Things) environments, such as the BeagleBone-Black, Arduino, and Raspberry Pi.
 
