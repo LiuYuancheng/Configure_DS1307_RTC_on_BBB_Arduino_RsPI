@@ -1,10 +1,12 @@
 # Set Real-Time Clock Unit for OT/IoT Device
 
-### Configure DS1307 RTC on BeagleBone-Black Arduino or Raspberry PI
+### Configure DS1307 RTC on BeagleBone-Black Arduino or Raspberry-PI
 
 ![](doc/img/title01.png)
 
-**Program Design Purpose**: Real-Time Clock (RTC) modules are essential for maintaining accurate timekeeping in various applications, including system clocks, data logging, and alarm systems. In scenarios where devices operate offline, such as a ship's NMEA 0183 data recorder that logs engine and rudder data, or an RTU (Remote Terminal Unit) which time state change configuration or IoT devices that cannot connect to a network time server, an RTC is crucial. This guide demonstrates how to integrate a DS1307 RTC module with commonly used microcontrollers in OT (Operational Technology) and IoT (Internet of Things) environments, such as the BeagleBone-Black, Arduino, and Raspberry Pi.
+` Figure-00: Project Overview Diagram , version v0.1.2 (2024)`
+
+**Program Design Purpose**: Real-Time Clock (RTC) modules are essential for maintaining accurate timekeeping in various applications, including system clocks, data logging, and alarm systems. In scenarios where devices operate offline, such as a ship's NMEA 0183 data recorder that logs engine and rudder data, or an RTU (Remote Terminal Unit) with real time state change configuration or IoT devices that cannot connect to a network time server, an RTC is crucial. This guide document demonstrates how to integrate a DS1307 RTC module with commonly used microcontrollers in OT (Operational Technology) and IoT (Internet of Things) environments, such as the BeagleBone-Black, Arduino, and Raspberry-Pi.
 
 ```
 # Created:     2024/08/11
@@ -16,6 +18,29 @@
 **Table of Contents**
 
 [TOC]
+
+- [Set Real-Time Clock Unit for OT/IoT Device](#set-real-time-clock-unit-for-ot-iot-device)
+    + [Configure DS1307 RTC on BeagleBone-Black Arduino or Raspberry-PI](#configure-ds1307-rtc-on-beaglebone-black-arduino-or-raspberry-pi)
+    + [Introduction](#introduction)
+      - [Background Knowledge Introduction](#background-knowledge-introduction)
+        * [I2C DS1307 RTC](#i2c-ds1307-rtc)
+        * [I2C Communication Protocol](#i2c-communication-protocol)
+        * [Micro Controller Introduction](#micro-controller-introduction)
+    + [Setting Up the DS1307 RTC for 3.3V OT Devices](#setting-up-the-ds1307-rtc-for-33v-ot-devices)
+    + [Setting Up and Using the DS1307 RTC on BeagleBone-Black](#setting-up-and-using-the-ds1307-rtc-on-beaglebone-black)
+      - [RTU and Controller Wire Connection](#rtu-and-controller-wire-connection)
+      - [Library and Driver Configuration](#library-and-driver-configuration)
+      - [Python Program to Get the RTC Data](#python-program-to-get-the-rtc-data)
+    + [Setting Up and Using the DS1307 RTC on Arduino](#setting-up-and-using-the-ds1307-rtc-on-arduino)
+      - [RTU and Controller Wire Connection](#rtu-and-controller-wire-connection-1)
+      - [Library or Driver Configuration](#library-or-driver-configuration)
+      - [C++ Program to Read RTC Data](#c---program-to-read-rtc-data)
+    + [Setting Up and Using the DS1307 RTC on Raspberry Pi](#setting-up-and-using-the-ds1307-rtc-on-raspberry-pi)
+      - [RTU and Controller Wire Connection](#rtu-and-controller-wire-connection-2)
+      - [Library or Driver Configuration](#library-or-driver-configuration-1)
+      - [Python Program to Get the RTC Data](#python-program-to-get-the-rtc-data-1)
+    + [Reference](#reference)
+    + [Problem and Solution](#problem-and-solution)
 
 ------
 
@@ -33,9 +58,11 @@ This section provides an overview and reference links for the hardware and proto
 
 ##### I2C DS1307 RTC
 
-The DS1307 is a widely-used RTC module that communicates via I2C and is suitable for basic timekeeping applications. It includes a coin cell battery, ensuring that it keeps time even when the main power is off. RTC I2C DS1307 Module Including Coin Cell Battery is shown below:
+The DS1307 is a widely-used RTC module that communicates via I2C and is suitable for basic timekeeping applications. It includes a coin cell battery, ensuring that it keeps time even when the main power is off. RTC I2C DS1307 Module Including CR2032 Coin Cell Battery is shown below:
 
 ![](doc/img/readme1.png)
+
+` Figure-01: I2C DS1307 RTC with CR2032 battery , version v0.1.2 (2024)`
 
 **Key Features of the DS1307 RTC:**
 
@@ -71,6 +98,8 @@ In the circuit diagram below, the SDA and SCL lines are connected to VCC through
 
 ![](doc/img/rm_03.png)
 
+` Figure-02: I2C DS1307 circuit diagram and resistor modification, version v0.1.2 (2024)`
+
 By unsoldering these two resistors, the output voltage will be directly from the DS1307 chip, which has a maximum output of 3.5V. This adjustment ensures compatibility with OT devices that operate on a 3.3V system.
 
 
@@ -91,6 +120,8 @@ This section explains how to connect and configure the DS1307 RTC with the Beagl
 The connection detail is shown below:
 
 ![](doc/img/rm_05.png)
+
+` Figure-03: Wire Connection of DS1307 RTC on BeagleBone-Black , version v0.1.2 (2024)`
 
 To check if the DS1307 is properly connected and recognized by the BeagleBone Black, run the command `i2cdetect -y -r 1`. The address `0x68` should appear, indicating that the DS1307 module is correctly connected.
 
@@ -226,11 +257,15 @@ The connection detail is shown below:
 
 ![](doc/img/rm_06.png)
 
+` Figure-04: Wire Connection of DS1307 RTC on Arduino , version v0.1.2 (2024)`
+
 #### Library or Driver Configuration
 
 To interface with the DS1307 RTC module using I2C on an Arduino, you need to include the `Wire.h` library, which facilitates I2C communication. Additionally, install the `RTClib` library through the Arduino IDE, which simplifies interaction with the DS1307 and other RTC modules.(As shown below)
 
 ![](doc/img/rm_07.png)
+
+` Figure-05: Install RTC lib from Arduino IDE , version v0.1.2 (2024)`
 
 For the RTC lib please refer to this link: https://www.arduino.cc/reference/en/libraries/rtclib/ , or the project repo: https://github.com/adafruit/RTClib
 
@@ -308,6 +343,8 @@ The connection detail is shown below:
 
 ![](doc/img/rm_08.png)
 
+` Figure-06: Wire Connection of DS1307 RTC on Raspberry Pi, version v0.1.2 (2024)`
+
 Same as setting on BeagleBone-Black, to verify that the DS1307 RTC is properly connected and recognized, run `i2cdetect -y 1` in the terminal. You should see the address `0x68`, indicating that the DS1307 is detected.
 
 #### Library or Driver Configuration
@@ -320,9 +357,13 @@ sudo raspi-config
 
 ![](doc/img/rm_09.png)
 
+` Figure-07: Raspberry PI interface configuration page, version v0.1.2 (2024)`
+
 Then navigate to `Interfacing Options` > `I2C` and enable it as shown below:
 
 ![](doc/img/rm_10.png)
+
+` Figure-06: Raspberry PI I2C2 configuration page, version v0.1.2 (2024)`
 
 Next, install the necessary packages by running:
 
